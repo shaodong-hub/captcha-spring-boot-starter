@@ -19,4 +19,6 @@ public interface ConfigSecurityConstant {
 
     String POST = "POST";
 
+    String ACCESS_CAPTCHA_URI = "${com.github.captcha.captcha-path:/validation/image}";
+
 }

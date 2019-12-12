@@ -14,6 +14,19 @@
     <name>captcha-spring-boot-starter</name>
     <description>Demo project for Spring Boot</description>
 
+    <developers>
+        <developer>
+            <name>石少东</name>
+            <id>shaopro</id>
+            <email>shaopro@qq.com</email>
+            <organization>cmcc</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+
     <properties>
         <java.version>1.8</java.version>
     </properties>
@@ -51,7 +64,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -91,14 +104,5 @@
             </exclusions>
         </dependency>
     </dependencies>
-
-<!--    <build>-->
-<!--        <plugins>-->
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--            </plugin>-->
-<!--        </plugins>-->
-<!--    </build>-->
 
 </project>

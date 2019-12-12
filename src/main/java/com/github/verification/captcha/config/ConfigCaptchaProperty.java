@@ -26,9 +26,13 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "com.github.captcha")
 public class ConfigCaptchaProperty {
 
+    /**
+     * 验证码路径
+     */
+    private String captchaPath = "/validation/image";
 
     /**
-     *
+     * 验证码请求参数的名称
      */
     private String paramName = "imageCode";
 

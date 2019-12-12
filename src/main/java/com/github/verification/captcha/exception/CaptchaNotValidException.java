@@ -13,7 +13,12 @@ package com.github.verification.captcha.exception;
 
 public class CaptchaNotValidException extends Exception {
 
+    private static final long serialVersionUID = 2333282580512794340L;
+
+    private String message;
+
     public CaptchaNotValidException(String message) {
         super(message);
+        this.message = message;
     }
 }
