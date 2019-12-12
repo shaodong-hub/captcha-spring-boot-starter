@@ -38,7 +38,6 @@ import java.io.IOException;
  */
 
 @Slf4j
-@Component
 public class SecurityCaptchaValidationFilter extends OncePerRequestFilter implements ApplicationContextAware {
 
     @Resource
