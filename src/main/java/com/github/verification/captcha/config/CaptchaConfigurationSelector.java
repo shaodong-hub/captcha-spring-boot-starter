@@ -4,8 +4,11 @@ import com.github.verification.captcha.common.CaptchaUtil;
 import com.github.verification.captcha.controller.ICaptchaController;
 import com.github.verification.captcha.controller.impl.CaptchaControllerImpl;
 import com.github.verification.captcha.filter.SecurityCaptchaValidationFilter;
+import com.github.verification.captcha.service.ICaptchaNotValidService;
 import com.github.verification.captcha.service.ICaptchaService;
 import com.github.verification.captcha.service.impl.CaptchaServiceImpl;
+import com.github.verification.captcha.service.impl.DefaultCaptchaNotValidServiceImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +35,7 @@ public class CaptchaConfigurationSelector {
     private ConfigCaptchaProperty property;
 
     @Bean
+    @ConditionalOnMissingBean
     public CaptchaUtil captchaUtil() {
         return CaptchaUtil.builder()
                 .size(property.getSize())
@@ -45,18 +49,27 @@ public class CaptchaConfigurationSelector {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ICaptchaService iCaptchaService() {
         return new CaptchaServiceImpl();
     }
 
     @Bean
-    public ICaptchaController ICaptchaController() {
+    @ConditionalOnMissingBean
+    public ICaptchaController iCaptchaController() {
         return new CaptchaControllerImpl();
     }
 
     @Bean
-    public SecurityCaptchaValidationFilter securityCaptchaValidationFilter(){
+    @ConditionalOnMissingBean
+    public SecurityCaptchaValidationFilter securityCaptchaValidationFilter() {
         return new SecurityCaptchaValidationFilter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ICaptchaNotValidService defaultCaptchaNotValidServiceImpl() {
+        return new DefaultCaptchaNotValidServiceImpl();
     }
 
 }

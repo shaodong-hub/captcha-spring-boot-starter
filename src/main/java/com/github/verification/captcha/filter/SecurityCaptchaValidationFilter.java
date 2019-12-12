@@ -3,11 +3,16 @@ package com.github.verification.captcha.filter;
 import com.github.verification.captcha.common.CaptchaUtil;
 import com.github.verification.captcha.config.ConfigCaptchaProperty;
 import com.github.verification.captcha.config.ConfigSecurityConstant;
+import com.github.verification.captcha.event.CaptchaFailureEvent;
+import com.github.verification.captcha.event.CaptchaSuccessEvent;
 import com.github.verification.captcha.exception.CaptchaNotValidException;
-import lombok.SneakyThrows;
+import com.github.verification.captcha.service.ICaptchaNotValidService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,24 +39,39 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class SecurityCaptchaValidationFilter extends OncePerRequestFilter {
+public class SecurityCaptchaValidationFilter extends OncePerRequestFilter implements ApplicationContextAware {
+
+    @Resource
+    private ICaptchaNotValidService service;
 
     @Resource
     private ConfigCaptchaProperty property;
 
+    @Resource
+    private ApplicationContext applicationContext;
+
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NotNull FilterChain filterChain)
+            throws ServletException, IOException {
 
         if (property.getCheckPaths().contains(request.getRequestURI()) && StringUtils.equalsIgnoreCase(request.getMethod(), ConfigSecurityConstant.POST)) {
-            validate(new ServletWebRequest(request));
+            try {
+                validate(new ServletWebRequest(request));
+            } catch (CaptchaNotValidException e) {
+                log.debug("验证码有误:{}", e.getMessage());
+                applicationContext.publishEvent(new CaptchaFailureEvent(this, e.getMessage()));
+                service.captchaNotValid(new ServletWebRequest(request, response), e);
+                return;
+            }
         }
+        log.debug("验证码校验成功");
+        applicationContext.publishEvent(new CaptchaSuccessEvent(this));
         filterChain.doFilter(request, response);
     }
 
-    @SneakyThrows(CaptchaNotValidException.class)
-    private void validate(@NotNull ServletWebRequest servletWebRequest) {
+    private void validate(@NotNull ServletWebRequest servletWebRequest) throws CaptchaNotValidException {
         String requestCaptcha = servletWebRequest.getParameter(property.getParamName());
         HttpSession session = servletWebRequest.getRequest().getSession();
         CaptchaUtil.Captcha sessionCaptcha = (CaptchaUtil.Captcha) session.getAttribute(ConfigSecurityConstant.SESSION_CAPTCHA_CODE);
@@ -77,4 +97,9 @@ public class SecurityCaptchaValidationFilter extends OncePerRequestFilter {
         session.removeAttribute(ConfigSecurityConstant.SESSION_CAPTCHA_CODE);
     }
 
+    @Override
+    public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }
+
